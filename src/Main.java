@@ -15,24 +15,35 @@ public class Main {
 
             sched.start();
 
-            JobDetail job = newJob(HelloJob.class)
-                    .withIdentity("myJob", "group1")
+            sched.getListenerManager().addJobListener(new JobListenerLogging2());
+
+            JobDetail job1 = newJob(HelloJob.class)
+                    .withIdentity("helloJob", "group1")
+                    .build();
+            JobDetail job2 = newJob(AntockJob.class)
+                    .withIdentity("antockJob", "group1")
                     .build();
 
-            Trigger trigger = newTrigger()
+            Trigger trigger1 = newTrigger()
                     .withIdentity("myTrigger", "group1")
                     .startNow()
                     .withSchedule(simpleSchedule()
-                    .withIntervalInSeconds(30)
-                    .repeatForever())
+                    .withIntervalInSeconds(10)
+                    .withRepeatCount(5))
+                    .build();
+            Trigger trigger2 = newTrigger()
+                    .withIdentity("myTrigger2", "group1")
+                    .startNow()
+                    .withSchedule(simpleSchedule()
+                            .withIntervalInSeconds(10)
+                            .withRepeatCount(5))
                     .build();
 
-            System.out.println("job started");
-
-            sched.scheduleJob(job, trigger);
+            sched.scheduleJob(job1, trigger1);
+            sched.scheduleJob(job2, trigger2);
 
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 }
